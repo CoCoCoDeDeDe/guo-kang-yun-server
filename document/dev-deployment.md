@@ -27,10 +27,15 @@ python get-pip.py --index-url https://pypi.tuna.tsinghua.edu.cn/simple
 pip install fastapi uvicorn[standard] sqlalchemy asyncpg alembic python-dotenv httpx pydantic-settings
 ```
 | **删除已安装的pip**：`Remove-Item -Recurse -Force venv`
+| **移除旧 venv**：`deactivate` `Remove-Item -Recurse -Force venv`
 | **查看 python 环境**：在激活状态下`where.exe python`
 | **查看已安装的 pip 依赖**：`pip list`
 | **退出虚拟环境**：`deactivate`
 | **逐个删除依赖**：`pip uninstall <包名>`（不要删除 Python 基础工具）
+| **切换 Python 根目录**：
+|   - `Ctrl + Shift + P`
+|   - `Python: Select Interpreter`
+|     - 必须选择路径含`venv`的
 - **依赖 requirement.txt安装**
 1. 根目录下创建`requirement.txt`文件
 ```
@@ -57,9 +62,18 @@ python-multipart
 **terminal commands approach**
 ```
 CREATE DATABASE guo_kang_yuan_db;
-CREATE USER fruit_admin WITH PASSWORD 'your_password';
+CREATE USER guo_kang_yuan_admin WITH PASSWORD 'guokangyun';
 GRANT ALL PRIVILEGES ON DATABASE guo_kang_yuan_db TO guo_kang_yuan_admin;
 ```
+**更全面地授权数据库**
+```
+-- 先切换到目标数据库
+\c guo_kang_yun_db
+-- 授权用户在 public schema 下创建表
+GRANT ALL ON SCHEMA public TO guo_kang_yun_admin;
+```
+**忘记设置密码后 alter**
+`ALTER USER guo_kang_yun_admin WITH PASSWORD 'guokangyun'`
 ## 文件目录结构
 guo-kang-yun-server/
 ├── app/
@@ -89,3 +103,28 @@ git push -u origin main
 git remote add origin git@github.com:CoCoCoDeDeDe/guo-kang-yun-server.git
 git branch -M main
 git push -u origin main
+
+## VSCode
+**新建文件.vscode/settings.json**：
+```
+{
+  "python.analysis.extraPaths": ["."],
+  "python.autoComplete.extraPaths": ["."]
+}
+```
+
+## PSQL 启动
+| Run as Administrator
+1. 检查数据库服务是否活着
+  1. 输入`Get-Service postgresql*`或`Get-Service postgresql-x64-18`
+     - 如果`Running`，直接下一步
+     - 如果`Stopped`，手动叫醒：`Start-Service postgresql*`或`Start-Service postgresql-x64-18`
+     - 如果被`Disabled`：`Set-Service -Name "postgresql-x64-18" -StartupType Automatic`
+2. 进入`psql`命令行界面
+   1. 将 PostgreSQL 加入环境变量
+      1. 或直接`& "C:\Program Files\PostgreSQL\18\bin\psql.exe" -U postgres`
+   2. 运行`psql -U postgres`
+   3. 输入密码
+
+## 启动 FastAPI
+`uvicorn app.main:app --reload`
