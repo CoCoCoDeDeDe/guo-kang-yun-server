@@ -17,6 +17,7 @@ class Base(DeclarativeBase):
 # 数据库连接与 Session 管理
 # ======================================
 # 创建异步引擎
+print(settings.DATABASE_URL)
 engine = create_async_engine(settings.DATABASE_URL, echo=True)
 
 # 创建异步 Session 工厂
