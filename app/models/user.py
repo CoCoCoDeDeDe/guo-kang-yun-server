@@ -28,6 +28,9 @@ class RoleEnum(IntEnum): # C 等效 A
 class User(Base):
   __tablename__ = "users"
 
+  # 类型注解 + mapped_column, 类型注解驱动列类型. 列类型由`Mapped`的泛型推导
+  # 类型注解: 可定义该字段在 Python 的类型
+  # mapped_column() 的类型参数: 定义该字段在数据库中的类型和长度限制\字符编码等等. 是数据库列配置项. 可根据类型注解默认生成(Mapped[str]对应String(255))
   id: Mapped[int] = mapped_column(primary_key=True, index=True)
   email: Mapped[str] = mapped_column(String(255), unique=True, index=True, nullable=False)
   username: Mapped[str] = mapped_column(String(100), nullable=False)
