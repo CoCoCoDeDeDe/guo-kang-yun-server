@@ -1,5 +1,14 @@
+import sys
+import os
 import asyncio
 from logging.config import fileConfig
+
+# 将项目根目录添加到 sys.path 中，让 alembic 能够找到 app 包
+# __file__ 代表当前的 env.py 文件路径。
+# os.path.dirname(__file__) 获取到了 migrations 目录。
+# 再套一层 os.path.dirname(...) 就获取到了项目的根目录 guo-kang-yun-server。
+# sys.path.append(...) 把这个根目录加入搜索路径后，Python 就能正常执行 from app.core.config import settings 了。
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
 from sqlalchemy import pool
 from sqlalchemy.engine import Connection
