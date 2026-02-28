@@ -22,6 +22,9 @@ app = FastAPI(
 origins = [
   "http://localhost",
   "http://localhost:5173",  # Vite (Vue3/React) 默认端口
+  "http://localhost",       # 👈 Capacitor Android 默认源
+  "https://localhost",      # 👈 有些版本的 Capacitor 会用这个
+  "capacitor://localhost",  # 👈 iOS Capacitor 常用源
   "http://localhost:3000",  # Create React App / Nuxt 默认端口
   "http://localhost:8080",  # Vue CLI 默认端口
   "http://127.0.0.1:5173",
