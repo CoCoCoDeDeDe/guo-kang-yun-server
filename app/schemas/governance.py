@@ -15,7 +15,9 @@ class GovernanceRecordBase(BaseModel):
 
 class GovernanceRecordCreate(GovernanceRecordBase):
     # 通常用户ID从Token中获取，但在严格模式下也可能需要前端显式传递或在依赖注入时补齐
-    user_id: int 
+    # user_id: int 
+    # user_id 由后端自动注入, 使用 Token 验证中间件验证后获取 user 数据
+    pass
 
 class GovernanceRecordUpdate(BaseModel):
     pest_type: Optional[str] = Field(None, max_length=100)

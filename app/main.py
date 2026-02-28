@@ -6,7 +6,7 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.database import get_db
 
-from app.api.v1 import users, knowledge
+from app.api.v1 import users, knowledge, governance
 
 app = FastAPI(
   title=settings.PROJECT_NAME,
@@ -60,5 +60,6 @@ async def test_db_connection(db: AsyncSession = Depends(get_db)):
 # 注册模块路由
 app.include_router(users.router, prefix="/api/v1/users", tags=["用户管理"])
 
-# 👇 新增：注册知识库路由
 app.include_router(knowledge.router, prefix="/api/v1/knowledge", tags=["病虫害知识库"])
+
+app.include_router(governance.router, prefix="/api/v1/governance", tags=["治理记录管理"])
