@@ -7,6 +7,8 @@ from app.db.database import get_db
 from app.schemas.user import UserCreate, UserResponse, Token # 引入 Token schem
 from app.services import user as user_service
 from app.core.security import create_access_token # 引入生成 token 方法
+from app.api.deps import get_current_user # <-- 新增导入
+from app.models.user import User # <-- 新增导入
 
 router = APIRouter()
 
@@ -53,3 +55,12 @@ async def login_for_access_token(
     
     # 必须严格按照包含 access_token 和 token_type 的字典返回
     return {"access_token": access_token, "token_type": "bearer"}
+  
+@router.get("/me", response_model=UserResponse, summary="获取当前登录用户信息")
+async def read_users_me(current_user: User = Depends(get_current_user)):
+  """
+  获取当前登录用户自己的信息。
+  这是一个受保护的接口，必须在 Header 中携带有效的 JWT Token 才能访问。
+  """
+  # 只要能走到这里，说明 Token 验证绝对通过了，并且 current_user 就是数据库里查出来的真实用户对象！
+  return current_user
