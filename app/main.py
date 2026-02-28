@@ -49,14 +49,15 @@ origins = [
   "http://localhost:3000",  # Create React App / Nuxt 默认端口
   "http://localhost:8080",  # Vue CLI 默认端口
   "http://127.0.0.1:5173",
-  # "*", # ⚠️ 警告：在开发初期图省事可以写 "*" 允许所有域名，但生产环境强烈建议写死具体域名！
+  # 但是只要用了 "*"，下面的 allow_credentials 必须改成 False 才能生效
+  "*", # ⚠️ 警告：在开发初期图省事可以写 "*" 允许所有域名，但生产环境强烈建议写死具体域名！
 ]
 
 # 配置 CORS，允许 Vue 前端访问
 app.add_middleware(
   CORSMiddleware,
   allow_origins=origins,            # 允许的来源列表
-  allow_credentials=True,           # 允许前端携带 Cookie/凭证（如果设为True，allow_origins不能是["*"]）
+  allow_credentials=False,           # 允许前端携带 Cookie/凭证（如果设为True，allow_origins不能是["*"]）
   allow_methods=["*"],              # 允许所有 HTTP 方法 (GET, POST, PUT, DELETE, OPTIONS 等)
   allow_headers=["*"],              # 允许所有请求头 (Content-Type, Authorization 等)
   expose_headers=["*"],             # 允许前端访问的响应头
