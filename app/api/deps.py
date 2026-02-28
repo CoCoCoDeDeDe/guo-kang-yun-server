@@ -10,6 +10,9 @@ from app.core.config import settings
 from app.db.database import get_db
 from app.models.user import User
 
+from typing import List
+from app.models.user import RoleEnum
+
 # 定义 OAuth2 的 Token 来源
 # 这个 URL 就是告诉 Swagger UI 上的小锁，去哪里调用接口换取 Token
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/users/login")
@@ -51,3 +54,23 @@ async def get_current_user(
     raise credentials_exception
       
   return user
+
+class RoleChecker:
+  """
+  权限校验依赖类
+  允许传入一个或多个允许访问的角色列表
+  """
+  def __init__(self, allowed_roles: List[RoleEnum]):
+    self.allowed_roles = allowed_roles
+
+  def __call__(self, current_user: User = Depends(get_current_user)) -> User:
+    """
+    FastAPI 在解析依赖时会自动调用 __call__。
+    这里先通过 get_current_user 获取到当前用户，然后判断其角色。
+    """
+    if current_user.role not in self.allowed_roles:
+      raise HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="权限不足，无法执行此操作"
+      )
+    return current_user

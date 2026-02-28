@@ -7,8 +7,11 @@ from app.db.database import get_db
 from app.schemas.user import UserCreate, UserResponse, Token # 引入 Token schem
 from app.services import user as user_service
 from app.core.security import create_access_token # 引入生成 token 方法
-from app.api.deps import get_current_user # <-- 新增导入
-from app.models.user import User # <-- 新增导入
+from app.api.deps import get_current_user
+from app.models.user import User
+
+from app.api.deps import get_current_user, RoleChecker 
+from app.models.user import User, RoleEnum
 
 router = APIRouter()
 
@@ -64,3 +67,42 @@ async def read_users_me(current_user: User = Depends(get_current_user)):
   """
   # 只要能走到这里，说明 Token 验证绝对通过了，并且 current_user 就是数据库里查出来的真实用户对象！
   return current_user
+
+# ==========================================
+# 权限受控接口演示
+# ==========================================
+
+# 1. 定义具体的权限依赖
+# 只要是专家或管理员都可以访问
+allow_expert_admin = RoleChecker([RoleEnum.EXPERT, RoleEnum.ADMIN])
+# 仅限管理员访问
+allow_admin_only = RoleChecker([RoleEnum.ADMIN])
+
+@router.post("/expert/publish-pest", summary="【权限测试】发布病虫害信息")
+async def publish_pest_info(
+  # 使用 Depends(allow_expert_admin) 替代原来的 Depends(get_current_user)
+  current_user: User = Depends(allow_expert_admin) 
+):
+  """
+  模拟一个只有专家或管理员才能调用的接口（例如发布新的病虫害科普）。
+  如果是果农（role=0）调用，会直接返回 403 Forbidden。
+  """
+  return {
+    "msg": "验证通过！", 
+    "user": current_user.username, 
+    "role_name": current_user.role.name,
+    "action": "你可以发布病虫害信息"
+  }
+
+@router.delete("/admin/delete-user", summary="【权限测试】删除用户")
+async def delete_user_demo(
+  current_user: User = Depends(allow_admin_only)
+):
+  """
+  模拟一个极其敏感的接口，仅管理员可调用。
+  """
+  return {
+    "msg": "验证通过！", 
+    "user": current_user.username, 
+    "action": "你是管理员，你有权删除用户"
+  }
