@@ -6,8 +6,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.database import get_db
 from app.schemas.warning import WarningMessageCreate, WarningMessageResponse
 from app.services import warning as warning_service
+from app.services import user as user_service # <-- 引入用户服务
 from app.api.deps import get_current_user, RoleChecker
 from app.models.user import User, RoleEnum
+
+from app.services.email import send_warning_email # <-- 引入真实发送邮件的方法
 
 router = APIRouter()
 
@@ -38,15 +41,20 @@ async def publish_warning(
   【限专家/管理员】发布一条新的病虫害预警。
   发布成功后，系统会在后台自动向用户发送广播邮件。
   """
-  # 1. 存入数据库
+  # 1. 存入预警数据库
   new_warning = await warning_service.create_warning(db, warning_in)
-  
-  # 2. 将发邮件任务丢给后台执行，不阻塞当前接口返回
-  background_tasks.add_task(
-    send_warning_email_task, 
-    warning_title=new_warning.affected_scope, 
-    content=new_warning.prevention_measures
-  )
+
+  # 2. 从数据库提取全体用户的邮箱列表
+  user_emails = await user_service.get_all_user_emails(db)
+
+  # 3. 将真实发邮件任务挂载到后台执行
+  if user_emails:
+    background_tasks.add_task(
+      send_warning_email, 
+      emails=user_emails, 
+      warning_title=new_warning.affected_scope, 
+      content=new_warning.prevention_measures
+    )
   
   return new_warning
 

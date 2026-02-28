@@ -13,6 +13,18 @@ class Settings(BaseSettings):
   ALGORITHM: str = "HS256"
   ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7  # Token 有效期设为 7 天
   
+  # === 新增邮件发送 SMTP 配置 ===
+  MAIL_USERNAME: str = "你的QQ号@qq.com"          # 你的发件邮箱
+  MAIL_PASSWORD: str = "你的邮箱授权码"           # 填入刚刚获取的授权码 (不是登录密码!)
+  MAIL_FROM: str = "你的QQ号@qq.com"              # 发件人邮箱 (通常同上)
+  MAIL_PORT: int = 465                            # QQ / 163 邮箱的 SSL 端口通常是 465
+  MAIL_SERVER: str = "smtp.qq.com"                # 163邮箱请填 smtp.163.com
+  MAIL_FROM_NAME: str = "果康云预警中心"           # 邮件发件人昵称
+  MAIL_STARTTLS: bool = False                     # 端口465对应SSL，此处设为False
+  MAIL_SSL_TLS: bool = True                       # 端口465设为True
+  USE_CREDENTIALS: bool = True
+  VALIDATE_CERTS: bool = True
+  
   model_config = SettingsConfigDict(env_file=".env")
   
 # 实例化，这样别的文件才可以 import settings

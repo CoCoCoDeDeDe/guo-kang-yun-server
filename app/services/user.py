@@ -61,3 +61,9 @@ async def authenticate_user(db: AsyncSession, email: str, password: str):
     return False
       
   return user
+
+async def get_all_user_emails(db: AsyncSession) -> list[str]:
+  """获取系统中所有用户的邮箱列表"""
+  # 如果你只想发给果农，可以加 .where(User.role == RoleEnum.FARMER)
+  result = await db.execute(select(User.email))
+  return result.scalars().all()
