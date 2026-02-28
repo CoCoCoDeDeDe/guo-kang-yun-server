@@ -8,8 +8,29 @@ from app.db.database import get_db
 
 from app.api.v1 import users, knowledge, governance, community, warning
 
+import asyncio
+from contextlib import asynccontextmanager
+from app.db.database import engine  # 确保从 database.py 导入 engine
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+  # 启动逻辑
+  yield
+  # 关闭逻辑
+  print("正在接收退出信号，清理资源...")
+  try:
+    # 使用 asyncio.wait_for 强制给关闭连接池设置 2 秒超时
+    # 防止 dispose 动作本身卡死
+    await asyncio.wait_for(engine.dispose(), timeout=2.0)
+    print("数据库连接池已安全释放。")
+  except asyncio.TimeoutError:
+    print("清理超时，强制退出。")
+  except Exception as e:
+    print(f"清理过程中出错: {e}")
+
 app = FastAPI(
   title=settings.PROJECT_NAME,
+  lifespan=lifespan,
   docs_url="/api/docs",
   redoc_url="/api/redoc",
   openapi_url="/api/openapi.json",  
