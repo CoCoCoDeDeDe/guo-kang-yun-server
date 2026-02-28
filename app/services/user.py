@@ -48,3 +48,16 @@ async def create_user(db: AsyncSession, user_in: UserCreate):
     await db.refresh(db_user) 
     
     return db_user
+  
+async def authenticate_user(db: AsyncSession, email: str, password: str):
+  """
+  验证用户登录：比对邮箱和密码
+  """
+  user = await get_user_by_email(db, email)
+  if not user:
+    return False
+  
+  if not verify_password(password, user.password):
+    return False
+      
+  return user
