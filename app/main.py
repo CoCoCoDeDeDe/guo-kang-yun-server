@@ -6,7 +6,7 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.database import get_db
 
-from app.api.v1 import users, knowledge, governance, community
+from app.api.v1 import users, knowledge, governance, community, warning
 
 app = FastAPI(
   title=settings.PROJECT_NAME,
@@ -65,3 +65,5 @@ app.include_router(knowledge.router, prefix="/api/v1/knowledge", tags=["病虫�
 app.include_router(governance.router, prefix="/api/v1/governance", tags=["治理记录管理"])
 
 app.include_router(community.router, prefix="/api/v1/community", tags=["社区与论坛(审核)"])
+
+app.include_router(warning.router, prefix="/api/v1/warning", tags=["预警通知系统"])
