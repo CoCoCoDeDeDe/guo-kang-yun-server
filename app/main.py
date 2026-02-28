@@ -6,6 +6,8 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.database import get_db
 
+from app.api.v1 import users
+
 app = FastAPI(
   title=settings.PROJECT_NAME,
   docs_url="/api/docs",
@@ -54,3 +56,6 @@ async def test_db_connection(db: AsyncSession = Depends(get_db)):
       "status": "error", 
       "message": f"数据库连接失败: {str(e)}"
     }
+
+# 注册用木模块路由
+app.include_router(users.router, prefix="/api/v1/users", tags=["用户管理"])

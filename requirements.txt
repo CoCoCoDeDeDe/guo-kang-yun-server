@@ -12,3 +12,5 @@ python-dotenv
 pydantic-settings
 httpx
 python-multipart
+bcrypt
+PyJWT
