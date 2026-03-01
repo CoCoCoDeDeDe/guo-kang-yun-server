@@ -49,3 +49,7 @@ class VerificationCodeResponse(VerificationCodeBase):
 class Token(BaseModel):
   access_token: str
   token_type: str
+  
+class UserChangePassword(BaseModel):
+  old_password: str = Field(..., description="旧密码")
+  new_password: str = Field(..., min_length=6, description="新密码，至少6位")

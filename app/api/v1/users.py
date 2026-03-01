@@ -4,7 +4,7 @@ from fastapi.security import OAuth2PasswordRequestForm # 引入 OAuth2 表单
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.database import get_db
-from app.schemas.user import UserCreate, UserResponse, Token # 引入 Token schem
+from app.schemas.user import UserCreate, UserResponse, Token, UserChangePassword
 from app.services import user as user_service
 from app.core.security import create_access_token # 引入生成 token 方法
 from app.api.deps import get_current_user
@@ -106,3 +106,32 @@ async def delete_user_demo(
     "user": current_user.username, 
     "action": "你是管理员，你有权删除用户"
   }
+
+@router.put("/change-password", summary="修改当前登录用户的密码")
+async def change_password(
+    password_data: UserChangePassword,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user) # 必须登录才能修改
+):
+  """
+  修改密码。需要验证旧密码是否正确。
+  """
+  # 1. 验证旧密码是否正确
+  # 调用 user_service 里的 verify_password 方法进行比对
+  if not user_service.verify_password(password_data.old_password, current_user.password):
+    raise HTTPException(
+      status_code=status.HTTP_400_BAD_REQUEST,
+      detail="旧密码不正确，请重新输入"
+    )
+  
+  # 2. 如果新密码和旧密码一样，可以拦截（可选）
+  if password_data.old_password == password_data.new_password:
+    raise HTTPException(
+      status_code=status.HTTP_400_BAD_REQUEST,
+      detail="新密码不能与旧密码相同"
+    )
+
+  # 3. 更新密码
+  await user_service.update_user_password(db, current_user, password_data.new_password)
+  
+  return {"msg": "密码修改成功！请在下次登录时使用新密码。"}

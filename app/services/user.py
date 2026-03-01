@@ -67,3 +67,17 @@ async def get_all_user_emails(db: AsyncSession) -> list[str]:
   # 如果你只想发给果农，可以加 .where(User.role == RoleEnum.FARMER)
   result = await db.execute(select(User.email))
   return result.scalars().all()
+
+async def update_user_password(db: AsyncSession, user: User, new_password: str):
+  """
+  修改用户密码：生成新哈希值并保存到数据库
+  """
+  # 将新密码进行哈希加密
+  hashed_password = get_password_hash(new_password)
+  
+  # 更新对象并提交
+  user.password = hashed_password
+  db.add(user)
+  await db.commit()
+  await db.refresh(user)
+  return user
